@@ -1413,7 +1413,6 @@ function handleBallPointerEnd(e) {
 
   try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
 }
-}
 
 function resizePhysicsCanvas() {
   if (!canvas) return;
@@ -1496,7 +1495,7 @@ function handleMotion(e) {
   gravityVec.x = gravityVec.x * 0.92 + gx * 0.08;
   gravityVec.y = gravityVec.y * 0.92 + gy * 0.08;
 }
-if (b.dragging) continue;
+
 function physicsLoop() {
   if (!physicsRunning) return;
 
