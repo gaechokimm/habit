@@ -133,7 +133,7 @@
   }
   .deadline-btn {
     flex: 1;
-    padding: 14px 6px;
+    padding: 12px 14px;
     border: 2px solid #f0e6ff;
     background: #fcfaff;
     border-radius: 14px;
@@ -143,6 +143,7 @@
     cursor: pointer;
     transition: all 0.2s;
     font-family: inherit;
+    white-space: nowrap;
   }
   .deadline-btn:active {
     transform: scale(0.96);
@@ -154,10 +155,9 @@
     box-shadow: 0 4px 12px rgba(176, 124, 232, 0.3);
   }
   .deadline-btn .num {
-    font-size: 22px;
+    font-size: 17px;
     font-weight: 800;
-    display: block;
-    margin-bottom: 2px;
+    margin-right: 2px;
   }
 
   /* ====== Task list (setup) ====== */
@@ -483,7 +483,7 @@
   }
   #ballCanvas {
     width: 100%;
-    height: 220px;
+    height: 280px;
     display: block;
     background:
       linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,236,250,0.5));
@@ -865,7 +865,7 @@ function renderSetup() {
       <div class="section-title">
         <span class="left">🎯 나의 목표</span>
       </div>
-      <div class="card">
+      <div class="card" style="padding:12px 14px;">
         <input type="text" class="goal-input" data-action="goal"
                placeholder="예) 매일 책 읽기"
                maxlength="10" value="${escapeHtml(state.goal)}">
@@ -874,16 +874,13 @@ function renderSetup() {
       <div class="section-title">
         <span class="left">⏰ 도전 기간</span>
       </div>
-      <div class="card">
+      <div class="card" style="padding:12px 14px;">
         <div class="deadline-options">
           <button class="deadline-btn ${state.days === 7 ? 'active' : ''}" data-action="days" data-val="7">
             <span class="num">7</span>일
           </button>
           <button class="deadline-btn ${state.days === 14 ? 'active' : ''}" data-action="days" data-val="14">
             <span class="num">14</span>일
-          </button>
-          <button class="deadline-btn ${state.days === 30 ? 'active' : ''}" data-action="days" data-val="30">
-            <span class="num">30</span>일
           </button>
         </div>
       </div>
@@ -1005,6 +1002,14 @@ function renderDetail() {
 
   const completedNum = progress.completedTaskIds.length;
   const totalNum = state.tasks.length;
+  const cumulativeNum = (() => {
+    let total = 0;
+    for (let d = 0; d <= dayIdx; d++) {
+      const p = state.progress[d];
+      if (p && p.completedTaskIds) total += p.completedTaskIds.length;
+    }
+    return total;
+  })();
 
   app.innerHTML = `
     <div class="container">
@@ -1031,7 +1036,7 @@ function renderDetail() {
 
       <div class="section-title">
         <span class="left">📦 미션 달성 현황</span>
-        <span class="right" id="boxProgressLabel">${completedNum}/${totalNum} 미션 완료</span>
+        <span class="right" id="boxProgressLabel">오늘 ${completedNum}/${totalNum} · 누적 ${cumulativeNum}개</span>
       </div>
       <div class="box-container">
         <canvas id="ballCanvas"></canvas>
@@ -1041,41 +1046,47 @@ function renderDetail() {
 
   attachHandlers();
 
-  // 물리 시작 + 이미 완료된 task별로 이모지 3개씩 정착 상태로 채우기
+  // 물리 시작 + 1일차부터 현재일까지 모든 완료 미션의 이모지를 누적 표시
   setTimeout(() => {
     initPhysics();
-    progress.completedTaskIds.forEach(tid => {
-      const task = state.tasks.find(t => t.id === tid);
-      if (task) {
-        for (let i = 0; i < BALLS_PER_TASK; i++) addBall(task.emoji, true);
-      }
-    });
+    for (let d = 0; d <= state.currentDay; d++) {
+      const dp = state.progress[d];
+      if (!dp || !dp.completedTaskIds) continue;
+      dp.completedTaskIds.forEach(tid => {
+        const task = state.tasks.find(t => t.id === tid);
+        if (task) addBall(task.emoji, true); // 1개씩만, 정착 상태
+      });
+    }
   }, 50);
 }
 
-const BALLS_PER_TASK = 3;
-
+// 완료 미션 당 이모지 1개씩
 function addBallsForTask(emoji, animate) {
-  for (let i = 0; i < BALLS_PER_TASK; i++) {
-    if (animate) {
-      setTimeout(() => {
-        if (canvas && physicsRunning) addBall(emoji, false);
-      }, i * 400);
-    } else {
-      addBall(emoji, true);
-    }
+  if (animate) {
+    if (canvas && physicsRunning) addBall(emoji, false);
+  } else {
+    addBall(emoji, true);
   }
 }
 
 function removeBallsForTask(emoji) {
-  // 해당 이모지의 공을 뒤에서부터 BALLS_PER_TASK개 제거
-  let removed = 0;
-  for (let i = balls.length - 1; i >= 0 && removed < BALLS_PER_TASK; i--) {
+  // 해당 이모지 공 하나만 제거 (가장 최근에 추가된 것)
+  for (let i = balls.length - 1; i >= 0; i--) {
     if (balls[i].emoji === emoji) {
       balls.splice(i, 1);
-      removed++;
+      break;
     }
   }
+}
+
+// 1일차부터 현재일까지 누적 완료 미션 갯수
+function getCumulativeCount() {
+  let total = 0;
+  for (let d = 0; d <= state.currentDay; d++) {
+    const p = state.progress[d];
+    if (p && p.completedTaskIds) total += p.completedTaskIds.length;
+  }
+  return total;
 }
 
 // ============================
@@ -1213,7 +1224,8 @@ function updateDetailUi() {
   });
   const progressEl = document.querySelector('#boxProgressLabel');
   if (progressEl) {
-    progressEl.textContent = `${progress.completedTaskIds.length}/${state.tasks.length} 미션 완료`;
+    const cumulative = getCumulativeCount();
+    progressEl.textContent = `오늘 ${progress.completedTaskIds.length}/${state.tasks.length} · 누적 ${cumulative}개`;
   }
 }
 
@@ -1286,6 +1298,9 @@ function initPhysics() {
   // 리사이즈
   window.addEventListener('resize', resizePhysicsCanvas);
 
+  // 터치/클릭 시 그 공 튕겨나가기
+  canvas.addEventListener('pointerdown', handleBallPoke);
+
   // 시작
   requestAnimationFrame(physicsLoop);
 
@@ -1294,7 +1309,42 @@ function initPhysics() {
     balls = [];
     window.removeEventListener('resize', resizePhysicsCanvas);
     window.removeEventListener('devicemotion', handleMotion);
+    if (canvas) canvas.removeEventListener('pointerdown', handleBallPoke);
   };
+}
+
+function handleBallPoke(e) {
+  if (!canvas || !balls.length) return;
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX - rect.left;
+  const py = e.clientY - rect.top;
+
+  // 클릭 지점에서 가장 가까운 공 찾기 (히트 영역 약간 여유)
+  let hit = -1;
+  let bestDist = Infinity;
+  for (let i = balls.length - 1; i >= 0; i--) {
+    const b = balls[i];
+    const dx = b.x - px;
+    const dy = b.y - py;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < b.radius * 1.25 && dist < bestDist) {
+      hit = i;
+      bestDist = dist;
+    }
+  }
+  if (hit < 0) return;
+
+  const b = balls[hit];
+  const dx = b.x - px;
+  const dy = b.y - py;
+  const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
+  // 클릭 지점에서 멀어지는 방향으로 임펄스 + 약간 위로
+  const power = 3.6;
+  b.vx += (dx / dist) * power;
+  b.vy += (dy / dist) * power - 0.8;
+  b.angularVel += (Math.random() - 0.5) * 0.35;
+  // 살짝 떠오르도록 보장
+  if (b.vy > -0.3) b.vy = -0.3 + (Math.random() - 0.5) * 0.4;
 }
 
 function resizePhysicsCanvas() {
@@ -1311,7 +1361,7 @@ function resizePhysicsCanvas() {
 
 function addBall(emoji, settled) {
   if (!canvas) return;
-  const radius = 22;
+  const radius = 18;
   // 던지는 경우: 좌/우 무작위 위치 위쪽에서 가운데로 호를 그리듯 들어옴
   const throwFromLeft = Math.random() < 0.5;
   const ball = {
@@ -1392,7 +1442,7 @@ function physicsLoop() {
   // 젤리/물처럼 부드러운 흐름
   const damping = 0.45;       // 벽 충돌 시 흡수율 높임 (덜 튕김)
   const friction = 0.96;      // 점성 - 점진 감속
-  const maxSpeed = 1.6;       // 최대 속도 제한
+  const maxSpeed = 3.2;       // 최대 속도 (터치 임펄스 시 보이도록 여유)
   const t = Date.now() / 1000;
 
   for (let i = 0; i < balls.length; i++) {
