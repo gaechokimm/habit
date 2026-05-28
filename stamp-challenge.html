@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🌟 나의 스탬프 챌린지</title>
+<style>
+  * {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+  }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Pretendard', 'Malgun Gothic', sans-serif;
+    background: linear-gradient(180deg, #ffeef8 0%, #f3e8ff 50%, #e0ecff 100%);
+    min-height: 100vh;
+    color: #4a3a5c;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  body {
+    background-attachment: fixed;
+  }
+  .container {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 20px 18px 40px;
+    min-height: 100vh;
+  }
+
+  /* ====== Header ====== */
+  .header {
+    text-align: center;
+    margin-bottom: 18px;
+  }
+  .title {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #ff6ec7 0%, #b07ce8 35%, #6e9bff 70%, #6ec7ff 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+  .subtitle {
+    font-size: 12px;
+    color: #a797c0;
+    margin-top: 4px;
+  }
+
+  /* ====== Card ====== */
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 24px rgba(176, 124, 232, 0.12);
+  }
+  .label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #8b7aa8;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .label .required {
+    color: #ff6ec7;
+    margin-left: 4px;
+  }
+  .help {
+    font-size: 11px;
+    color: #b8a8d0;
+    font-weight: 500;
+  }
+
+  /* ====== Goal ====== */
+  .goal-input {
+    width: 100%;
+    border: 2px solid #f0e6ff;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 17px;
+    font-weight: 700;
+    font-family: inherit;
+    line-height: 1.4;
+    color: #4a3a5c;
+    text-align: left;
+    background: #fcfaff;
+  }
+  .goal-input::placeholder {
+    color: #d4c8eb;
+    font-weight: 500;
+  }
+  .goal-input:focus {
+    outline: none;
+    border-color: #b07ce8;
+    background: white;
+  }
+  .goal-display {
+    font-size: 20px;
+    font-weight: 800;
+    text-align: left;
+    line-height: 1.4;
+    color: #4a3a5c;
+    padding: 8px 4px 4px;
+    word-break: keep-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .goal-meta {
+    text-align: center;
+    font-size: 11px;
+    color: #b8a8d0;
+    margin-top: 4px;
+  }
+  .char-count {
+    font-size: 11px;
+    color: #b8a8d0;
+    text-align: right;
+    margin-top: 4px;
+  }
+
+  /* ====== Deadline ====== */
+  .deadline-options {
+    display: flex;
+    gap: 8px;
+  }
+  .deadline-btn {
+    flex: 1;
+    padding: 14px 6px;
+    border: 2px solid #f0e6ff;
+    background: #fcfaff;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: #8b7aa8;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .deadline-btn:active {
+    transform: scale(0.96);
+  }
+  .deadline-btn.active {
+    background: linear-gradient(135deg, #ff9ec7, #b07ce8);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(176, 124, 232, 0.3);
+  }
+  .deadline-btn .num {
+    font-size: 22px;
+    font-weight: 800;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  /* ====== Task list (setup) ====== */
+  .task-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .emoji-btn {
+    width: 48px;
+    height: 48px;
+    border: 2px solid #f0e6ff;
+    border-radius: 12px;
+    background: #fcfaff;
+    font-size: 22px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+  }
+  .emoji-btn:active {
+    transform: scale(0.92);
+  }
+  .task-input {
+    flex: 1;
+    border: 2px solid #f0e6ff;
+    border-radius: 12px;
+    padding: 12px 12px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #4a3a5c;
+    background: #fcfaff;
+    min-width: 0;
+  }
+  .task-input::placeholder {
+    color: #d4c8eb;
+  }
+  .task-input:focus {
+    outline: none;
+    border-color: #b07ce8;
+    background: white;
+  }
+  .remove-task {
+    background: none;
+    border: none;
+    color: #d4a3e8;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    width: 30px;
+    flex-shrink: 0;
+  }
+  .add-task-btn {
+    width: 100%;
+    padding: 12px;
+    border: 2px dashed #d4c8eb;
+    background: rgba(212, 200, 235, 0.08);
+    border-radius: 12px;
+    color: #b07ce8;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+    font-family: inherit;
+  }
+  .add-task-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  /* ====== Primary button ====== */
+  .primary-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, #ff6ec7 0%, #b07ce8 50%, #6e9bff 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 16px rgba(176, 124, 232, 0.35);
+    font-family: inherit;
+    letter-spacing: -0.3px;
+  }
+  .primary-btn:active {
+    transform: scale(0.98);
+  }
+  .primary-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ====== Stamps grid ====== */
+  .stamps-card {
+    background: white;
+    border-radius: 20px;
+    padding: 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 6px 24px rgba(176, 124, 232, 0.12);
+  }
+  .stamps-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+  }
+  .stamp {
+    aspect-ratio: 1;
+    border: 2px dashed #d4c8eb;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #fcfaff;
+    cursor: pointer;
+    color: #b8a8d0;
+    font-weight: 700;
+    position: relative;
+    transition: transform 0.2s;
+  }
+  .stamp:active {
+    transform: scale(0.9);
+  }
+  .stamp .day-num {
+    font-size: 12px;
+    color: #b8a8d0;
+  }
+  .stamp.completed {
+    border: 3px solid transparent;
+    background:
+      linear-gradient(white, white) padding-box,
+      var(--stamp-grad, linear-gradient(135deg, #ff6ec7, #b07ce8, #6e9bff, #6ec7ff)) border-box;
+    color: transparent;
+    transform: rotate(-6deg);
+    box-shadow: 0 3px 10px rgba(176, 124, 232, 0.25);
+    position: relative;
+  }
+  .stamp.completed:nth-child(3n) {
+    transform: rotate(4deg);
+  }
+  .stamp.completed:nth-child(5n) {
+    transform: rotate(-2deg);
+  }
+  .stamp.completed::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: var(--stamp-grad, linear-gradient(135deg, #ff6ec7, #b07ce8, #6e9bff, #6ec7ff));
+    opacity: 0.95;
+    z-index: 0;
+  }
+  .stamp.completed .stamp-month,
+  .stamp.completed .stamp-day {
+    position: relative;
+    z-index: 1;
+    color: white;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.2);
+  }
+  .stamp-month {
+    font-size: 9px;
+    line-height: 1;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .stamp-day {
+    font-size: 14px;
+    line-height: 1;
+    font-weight: 900;
+  }
+
+  /* ====== Reset ====== */
+  .reset-btn {
+    width: 100%;
+    padding: 12px;
+    background: white;
+    border: 1px solid #ece0f5;
+    border-radius: 12px;
+    color: #b8a8d0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    font-family: inherit;
+  }
+  .reset-btn:active {
+    background: #faf6ff;
+  }
+
+  /* ====== Detail view ====== */
+  .detail-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 8px;
+  }
+  .back-btn {
+    background: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(176, 124, 232, 0.15);
+    color: #8b7aa8;
+    font-weight: 700;
+  }
+  .detail-date {
+    flex: 1;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 800;
+    color: #4a3a5c;
+  }
+  .detail-date .small {
+    display: block;
+    font-size: 11px;
+    color: #b8a8d0;
+    font-weight: 600;
+    margin-top: 2px;
+  }
+  .detail-goal {
+    text-align: center;
+    background: white;
+    padding: 14px;
+    border-radius: 16px;
+    margin-bottom: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a3a5c;
+    box-shadow: 0 4px 16px rgba(176, 124, 232, 0.08);
+  }
+  .detail-goal .tag {
+    display: inline-block;
+    font-size: 10px;
+    color: #ff6ec7;
+    font-weight: 700;
+    background: #ffeef8;
+    padding: 3px 8px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+  }
+
+  /* ====== Task check ====== */
+  .task-check-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: white;
+    border-radius: 16px;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(176, 124, 232, 0.06);
+  }
+  .task-check-item:active {
+    transform: scale(0.98);
+  }
+  .task-check-item.checked {
+    background: linear-gradient(135deg, #fff5fa, #f5edff);
+  }
+  .task-emoji {
+    font-size: 26px;
+    width: 36px;
+    text-align: center;
+  }
+  .task-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a3a5c;
+    word-break: keep-all;
+  }
+  .task-check-item.checked .task-name {
+    text-decoration: line-through;
+    color: #b8a8d0;
+  }
+  .checkbox {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #d4c8eb;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: white;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+  .task-check-item.checked .checkbox {
+    background: linear-gradient(135deg, #ff9ec7, #b07ce8);
+    border-color: transparent;
+  }
+
+  /* ====== Box ====== */
+  .box-container {
+    margin-top: 18px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px dashed #d4c8eb;
+    border-radius: 22px;
+    padding: 14px;
+    backdrop-filter: blur(4px);
+  }
+  .box-label {
+    text-align: center;
+    color: #8b7aa8;
+    font-size: 12px;
+    margin-bottom: 8px;
+    font-weight: 700;
+  }
+  .box-progress {
+    text-align: center;
+    color: #b8a8d0;
+    font-size: 11px;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  #ballCanvas {
+    width: 100%;
+    height: 220px;
+    display: block;
+    background:
+      linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,236,250,0.5));
+    border-radius: 14px;
+    border: 1.5px solid rgba(212, 200, 235, 0.5);
+    touch-action: none;
+  }
+
+  /* ====== Modal ====== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(74, 58, 92, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 24px;
+    backdrop-filter: blur(6px);
+    animation: fadeIn 0.25s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal {
+    background: white;
+    border-radius: 26px;
+    padding: 28px 22px;
+    text-align: center;
+    width: 100%;
+    max-width: 340px;
+    position: relative;
+    animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes popIn {
+    from { transform: scale(0.5); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+  }
+  .celebrate-emoji {
+    font-size: 60px;
+    margin-bottom: 8px;
+    display: inline-block;
+    animation: bounce 1s infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-10px) scale(1.1); }
+  }
+  .celebrate-title {
+    font-size: 22px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #ff6ec7, #b07ce8, #6e9bff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  .celebrate-desc {
+    color: #8b7aa8;
+    font-size: 13px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .celebrate-goal {
+    background: linear-gradient(135deg, #fff5fa, #f5edff);
+    padding: 10px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a3a5c;
+  }
+
+  /* ====== Emoji picker ====== */
+  .emoji-picker {
+    background: white;
+    border-radius: 22px;
+    padding: 18px;
+    max-width: 360px;
+    width: 100%;
+    max-height: 70vh;
+    overflow-y: auto;
+  }
+  .emoji-picker-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #4a3a5c;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .emoji-cat {
+    font-size: 11px;
+    font-weight: 700;
+    color: #b07ce8;
+    margin-top: 10px;
+    margin-bottom: 6px;
+  }
+  .emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .emoji-option {
+    aspect-ratio: 1;
+    border: 1px solid #f0e6ff;
+    background: #fcfaff;
+    border-radius: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-family: inherit;
+  }
+  .emoji-option:active {
+    background: #f0e6ff;
+    transform: scale(0.92);
+  }
+  .emoji-close {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border: none;
+    background: #f5edff;
+    color: #8b7aa8;
+    font-weight: 700;
+    border-radius: 12px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+
+  /* ====== Confetti canvas ====== */
+  #confettiCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 300;
+  }
+
+  /* ====== Secondary buttons ====== */
+  .secondary-btn {
+    width: 100%;
+    padding: 12px;
+    background: #f5edff;
+    color: #b07ce8;
+    border: none;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    font-family: inherit;
+  }
+
+  /* Section spacing */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #8b7aa8;
+    margin: 14px 6px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .section-title .left {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .section-title .right {
+    font-weight: 600;
+    font-size: 11px;
+    color: #b8a8d0;
+  }
+  .section-title .required {
+    color: #ff6ec7;
+    margin-left: 2px;
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<canvas id="confettiCanvas"></canvas>
+
+<script>
+// ============================
+//  데이터 & 유틸
+// ============================
+const STORAGE_KEY = 'stamp_challenge_v1';
+
+const MONTHS_EN = ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'];
+
+const EMOJI_CATEGORIES = {
+  '추천': ['⭐', '🌟', '✨', '💫', '🎯', '🏆', '🎉', '🌈', '💖', '👑', '🎈', '🔥', '💎', '🎀'],
+  '공부/책': ['📚', '📖', '📝', '✏️', '🔢', '🔤', '🧮', '🎒', '🏫', '💡', '🧠', '📓', '📐', '✍️'],
+  '운동': ['🏃', '🚴', '🤸', '⚽', '🏀', '🎾', '🏊', '🧘', '💪', '🏋️', '💃', '🩰', '⛹️', '🤽'],
+  '음식': ['🍎', '🥕', '🥦', '🍇', '🍌', '🍓', '🥛', '💧', '🍚', '🥗', '🍞', '🍅', '🍊', '🍉'],
+  '생활': ['🪥', '🦷', '🛁', '🧹', '🛏️', '😴', '🌅', '👕', '🧺', '🚿', '🧼', '🪞', '🚽', '🧴'],
+  '취미': ['🎨', '🖌️', '🎹', '🎵', '🎤', '🎻', '🎮', '🧩', '🪀', '📷', '🎬', '🎭', '🎲', '🪁'],
+  '동물': ['🐶', '🐱', '🐰', '🦊', '🐼', '🐨', '🦄', '🦋', '🐢', '🐥', '🐳', '🐧', '🦁', '🐯']
+};
+
+const EMOJI_KEYWORDS = {
+  '달리기': '🏃', '뛰기': '🏃', '운동': '💪', '러닝': '🏃',
+  '자전거': '🚴', '수영': '🏊', '요가': '🧘', '체조': '🤸',
+  '발레': '🩰', '춤': '💃', '댄스': '💃',
+  '축구': '⚽', '농구': '🏀', '테니스': '🎾',
+  '공부': '📚', '학습': '📚', '책': '📖', '독서': '📖', '읽기': '📖',
+  '쓰기': '✏️', '글': '📝', '일기': '📝', '숙제': '📝', '문제': '📝',
+  '수학': '🔢', '계산': '🧮', '영어': '🔤', '한글': '✍️', '한자': '📓',
+  '물': '💧', '물마시기': '💧', '주스': '🍊', '우유': '🥛',
+  '과일': '🍎', '사과': '🍎', '바나나': '🍌', '딸기': '🍓', '포도': '🍇',
+  '야채': '🥦', '채소': '🥦', '당근': '🥕',
+  '밥': '🍚', '식사': '🥗', '아침': '🌅', '점심': '🥗', '저녁': '🍽️',
+  '양치': '🪥', '이닦기': '🦷', '세수': '🚿', '샤워': '🛁', '목욕': '🛁',
+  '청소': '🧹', '정리': '🧹', '빨래': '🧺', '옷정리': '👕',
+  '잠': '😴', '수면': '😴', '일찍자기': '🌙', '일어나기': '🌅',
+  '피아노': '🎹', '음악': '🎵', '노래': '🎤', '바이올린': '🎻',
+  '그림': '🎨', '미술': '🖌️', '사진': '📷', '만들기': '🧩',
+  '게임': '🎮', '퍼즐': '🧩', '레고': '🧱',
+  '연습': '💪', '도전': '🎯', '명상': '🧘', '심호흡': '🧘',
+  '집안일': '🧹', '도움': '🤝', '심부름': '🛍️',
+  '컴퓨터': '💻', '코딩': '💻'
+};
+
+function suggestEmoji(taskName) {
+  if (!taskName) return null;
+  const trimmed = taskName.trim().toLowerCase();
+  if (!trimmed) return null;
+  for (const [keyword, emoji] of Object.entries(EMOJI_KEYWORDS)) {
+    if (trimmed.includes(keyword.toLowerCase())) {
+      return emoji;
+    }
+  }
+  return null;
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+function todayKey() {
+  const d = new Date();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+// ============================
+//  상태
+// ============================
+let state = {
+  view: 'home',
+  setupComplete: false,
+  goal: '',
+  days: null, // 7, 14, 30
+  tasks: [
+    { id: uid(), name: '', emoji: '⭐' },
+    { id: uid(), name: '', emoji: '⭐' },
+    { id: uid(), name: '', emoji: '⭐' }
+  ],
+  progress: {}, // { dayIndex(0-based): { completedTaskIds: [], stampDate: ISO } }
+  currentDay: 0,
+  finalCelebrated: false
+};
+
+function loadState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      state = { ...state, ...parsed, view: 'home', currentDay: 0 };
+    }
+  } catch (e) { console.warn(e); }
+}
+
+function saveState() {
+  try {
+    const toSave = {
+      setupComplete: state.setupComplete,
+      goal: state.goal,
+      days: state.days,
+      tasks: state.tasks,
+      progress: state.progress,
+      finalCelebrated: state.finalCelebrated
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
+  } catch (e) { console.warn(e); }
+}
+
+function resetAll() {
+  if (physicsCleanup) { try { physicsCleanup(); } catch(e){} }
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e){}
+  state.setupComplete = false;
+  state.goal = '';
+  state.days = null;
+  state.tasks = [
+    { id: uid(), name: '', emoji: '⭐' },
+    { id: uid(), name: '', emoji: '⭐' },
+    { id: uid(), name: '', emoji: '⭐' }
+  ];
+  state.progress = {};
+  state.finalCelebrated = false;
+  state.view = 'home';
+  state.currentDay = 0;
+  saveState();
+  render();
+}
+
+function showResetConfirm() {
+  // 기존 모달이 있다면 제거
+  document.querySelectorAll('.modal-overlay').forEach(n => n.remove());
+
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="celebrate-emoji" style="animation:none;">🌀</div>
+      <div class="celebrate-title">초기화 할까요?</div>
+      <div class="celebrate-desc">
+        목표, 미션, 스탬프가 모두<br>처음 상태로 돌아가요.
+      </div>
+      <button class="primary-btn" data-reset-ok>네, 초기화할게요</button>
+      <button class="secondary-btn" data-reset-cancel>아니요</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const close = () => overlay.remove();
+  overlay.querySelector('[data-reset-ok]').addEventListener('click', () => {
+    close();
+    resetAll();
+  });
+  overlay.querySelector('[data-reset-cancel]').addEventListener('click', close);
+  overlay.addEventListener('click', e => { if (e.target === overlay) close(); });
+}
+
+// ============================
+//  렌더링
+// ============================
+const app = document.getElementById('app');
+
+function render() {
+  // 컨피티 정리
+  stopConfetti();
+  if (state.view === 'home') renderHome();
+  else if (state.view === 'detail') renderDetail();
+}
+
+// -------- HOME --------
+function renderHome() {
+  if (!state.setupComplete) {
+    renderSetup();
+  } else {
+    renderHomeMain();
+  }
+}
+
+function renderSetup() {
+  const tasksHtml = state.tasks.map((t, i) => `
+    <div class="task-item">
+      <button class="emoji-btn" data-action="pick-emoji" data-id="${t.id}">${t.emoji}</button>
+      <input class="task-input" data-id="${t.id}" data-action="task-name"
+             placeholder="할일 ${i+1}" maxlength="10" value="${escapeHtml(t.name)}">
+      ${state.tasks.length > 3 ? `<button class="remove-task" data-action="remove-task" data-id="${t.id}">✕</button>` : ''}
+    </div>
+  `).join('');
+
+  const canStart = state.goal.trim().length > 0
+    && state.days !== null
+    && state.tasks.filter(t => t.name.trim()).length >= 3;
+
+  app.innerHTML = `
+    <div class="container">
+      <div class="header">
+        <h1 class="title">🌟 나의 스탬프 챌린지</h1>
+        <p class="subtitle">목표를 정하고 매일 도장을 받아봐요</p>
+      </div>
+
+      <div class="section-title">
+        <span class="left">🎯 나의 목표</span>
+      </div>
+      <div class="card">
+        <input type="text" class="goal-input" data-action="goal"
+               placeholder="예) 매일 책 읽기"
+               maxlength="10" value="${escapeHtml(state.goal)}">
+      </div>
+
+      <div class="section-title">
+        <span class="left">⏰ 도전 기간</span>
+      </div>
+      <div class="card">
+        <div class="deadline-options">
+          <button class="deadline-btn ${state.days === 7 ? 'active' : ''}" data-action="days" data-val="7">
+            <span class="num">7</span>일
+          </button>
+          <button class="deadline-btn ${state.days === 14 ? 'active' : ''}" data-action="days" data-val="14">
+            <span class="num">14</span>일
+          </button>
+          <button class="deadline-btn ${state.days === 30 ? 'active' : ''}" data-action="days" data-val="30">
+            <span class="num">30</span>일
+          </button>
+        </div>
+      </div>
+
+      <div class="section-title">
+        <span class="left">📋 매일 할일</span>
+      </div>
+      <div class="card">
+        ${tasksHtml}
+        <button class="add-task-btn" data-action="add-task" ${state.tasks.length >= 5 ? 'disabled' : ''}>
+          + 할일 추가 (${state.tasks.length}/5)
+        </button>
+      </div>
+
+      <button class="primary-btn" data-action="start" ${canStart ? '' : 'disabled'}>
+        챌린지 시작하기 🚀
+      </button>
+    </div>
+  `;
+
+  attachHandlers();
+}
+
+function renderHomeMain() {
+  const days = state.days;
+  const completedCount = Object.values(state.progress).filter(p => p && p.stampDate).length;
+  const allComplete = completedCount === days;
+
+  let stampsHtml = '';
+  for (let i = 0; i < days; i++) {
+    const p = state.progress[i];
+    const isCompleted = p && p.stampDate;
+    if (isCompleted) {
+      const { month, day } = formatStampDate(p.stampDate);
+      const grad = getStampGradient(i);
+      stampsHtml += `
+        <div class="stamp completed" style="--stamp-grad: ${grad};" data-action="open-day" data-day="${i}">
+          <span class="stamp-month">${month}</span>
+          <span class="stamp-day">${day}</span>
+        </div>
+      `;
+    } else {
+      stampsHtml += `
+        <div class="stamp" data-action="open-day" data-day="${i}">
+          <span class="day-num">${i+1}</span>
+        </div>
+      `;
+    }
+  }
+
+  app.innerHTML = `
+    <div class="container">
+      <div class="header">
+        <h1 class="title">🌟 나의 스탬프 챌린지</h1>
+        <p class="subtitle">${completedCount}/${days}일 완료 · 화이팅!</p>
+      </div>
+
+      <div class="section-title">
+        <span class="left">🎯 나의 목표</span>
+        <span class="right">${days}일 챌린지</span>
+      </div>
+      <div class="card" style="padding:12px 14px;">
+        <div class="goal-display" style="font-size:17px;padding:6px 4px;min-height:auto;line-height:1.35;">${escapeHtml(state.goal)}</div>
+      </div>
+
+      <div class="section-title">
+        <span class="left">📋 매일 할일</span>
+      </div>
+      <div class="card" style="padding: 12px 16px;">
+        ${state.tasks.map(t => `
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+            <span style="font-size:22px;">${t.emoji}</span>
+            <span style="font-size:14px;font-weight:600;color:#4a3a5c;">${escapeHtml(t.name)}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="section-title">
+        <span class="left">🎖️ 스탬프 모으기</span>
+      </div>
+      <div class="stamps-card">
+        <div class="stamps-grid">
+          ${stampsHtml}
+        </div>
+      </div>
+
+      <button class="reset-btn" data-action="reset">🔄 챌린지 초기화</button>
+    </div>
+  `;
+
+  attachHandlers();
+
+  // 전체 완료 시 자동 축하 (한 번만)
+  if (allComplete && !state.finalCelebrated) {
+    state.finalCelebrated = true;
+    saveState();
+    setTimeout(() => showFinalCelebration(), 400);
+  }
+}
+
+// -------- DETAIL --------
+let physicsCleanup = null;
+
+function renderDetail() {
+  const dayIdx = state.currentDay;
+  const progress = state.progress[dayIdx] || { completedTaskIds: [] };
+  const dateInfo = formatStampDate(progress.stampDate || new Date().toISOString());
+
+  const tasksHtml = state.tasks.map(t => {
+    const isChecked = progress.completedTaskIds.includes(t.id);
+    return `
+      <div class="task-check-item ${isChecked ? 'checked' : ''}" data-action="toggle-task" data-id="${t.id}">
+        <div class="task-emoji">${t.emoji}</div>
+        <div class="task-name">${escapeHtml(t.name)}</div>
+        <div class="checkbox">${isChecked ? '✓' : ''}</div>
+      </div>
+    `;
+  }).join('');
+
+  const completedNum = progress.completedTaskIds.length;
+  const totalNum = state.tasks.length;
+
+  app.innerHTML = `
+    <div class="container">
+      <div class="detail-header">
+        <button class="back-btn" data-action="back">‹</button>
+        <div class="detail-date">
+          ${dayIdx + 1}일차
+          <span class="small">${dateInfo.month} ${dateInfo.day}</span>
+        </div>
+        <div style="width:40px"></div>
+      </div>
+
+      <div class="section-title">
+        <span class="left">🎯 나의 목표</span>
+      </div>
+      <div class="card" style="padding:12px 14px;margin-bottom:14px;">
+        <div class="goal-display" style="font-size:17px;padding:6px 4px;min-height:auto;line-height:1.35;">${escapeHtml(state.goal)}</div>
+      </div>
+
+      <div class="section-title">
+        <span class="left">📋 오늘의 미션</span>
+      </div>
+      ${tasksHtml}
+
+      <div class="section-title">
+        <span class="left">📦 미션 달성 현황</span>
+        <span class="right" id="boxProgressLabel">${completedNum}/${totalNum} 미션 완료</span>
+      </div>
+      <div class="box-container">
+        <canvas id="ballCanvas"></canvas>
+      </div>
+    </div>
+  `;
+
+  attachHandlers();
+
+  // 물리 시작 + 이미 완료된 task별로 이모지 3개씩 정착 상태로 채우기
+  setTimeout(() => {
+    initPhysics();
+    progress.completedTaskIds.forEach(tid => {
+      const task = state.tasks.find(t => t.id === tid);
+      if (task) {
+        for (let i = 0; i < BALLS_PER_TASK; i++) addBall(task.emoji, true);
+      }
+    });
+  }, 50);
+}
+
+const BALLS_PER_TASK = 3;
+
+function addBallsForTask(emoji, animate) {
+  for (let i = 0; i < BALLS_PER_TASK; i++) {
+    if (animate) {
+      setTimeout(() => {
+        if (canvas && physicsRunning) addBall(emoji, false);
+      }, i * 400);
+    } else {
+      addBall(emoji, true);
+    }
+  }
+}
+
+function removeBallsForTask(emoji) {
+  // 해당 이모지의 공을 뒤에서부터 BALLS_PER_TASK개 제거
+  let removed = 0;
+  for (let i = balls.length - 1; i >= 0 && removed < BALLS_PER_TASK; i--) {
+    if (balls[i].emoji === emoji) {
+      balls.splice(i, 1);
+      removed++;
+    }
+  }
+}
+
+// ============================
+//  이벤트 핸들러
+// ============================
+function attachHandlers() {
+  // 위임 방식
+  app.querySelectorAll('[data-action]').forEach(el => {
+    const action = el.dataset.action;
+    if (action === 'goal') {
+      el.addEventListener('input', e => {
+        state.goal = e.target.value;
+        const btn = document.querySelector('[data-action="start"]');
+        if (btn) btn.disabled = !canStart();
+      });
+    } else if (action === 'days') {
+      el.addEventListener('click', () => {
+        state.days = parseInt(el.dataset.val);
+        renderSetup();
+      });
+    } else if (action === 'task-name') {
+      el.addEventListener('input', e => {
+        const t = state.tasks.find(x => x.id === el.dataset.id);
+        if (t) {
+          const prevName = t.name;
+          t.name = e.target.value;
+          // 이모지 자동 추천 (기본 이모지일 때만)
+          const suggestion = suggestEmoji(t.name);
+          if (suggestion && (t.emoji === '⭐' || t.emoji === suggestEmoji(prevName))) {
+            t.emoji = suggestion;
+            const emojiBtn = document.querySelector(`.emoji-btn[data-id="${t.id}"]`);
+            if (emojiBtn) emojiBtn.textContent = suggestion;
+          }
+        }
+        const btn = document.querySelector('[data-action="start"]');
+        if (btn) btn.disabled = !canStart();
+      });
+    } else if (action === 'pick-emoji') {
+      el.addEventListener('click', () => openEmojiPicker(el.dataset.id));
+    } else if (action === 'add-task') {
+      el.addEventListener('click', () => {
+        if (state.tasks.length < 5) {
+          state.tasks.push({ id: uid(), name: '', emoji: '⭐' });
+          renderSetup();
+        }
+      });
+    } else if (action === 'remove-task') {
+      el.addEventListener('click', () => {
+        if (state.tasks.length > 3) {
+          state.tasks = state.tasks.filter(t => t.id !== el.dataset.id);
+          renderSetup();
+        }
+      });
+    } else if (action === 'start') {
+      el.addEventListener('click', () => {
+        if (!canStart()) return;
+        // 빈 할일 제거
+        state.tasks = state.tasks.filter(t => t.name.trim());
+        // 기본 이모지 없으면 ⭐로
+        state.tasks.forEach(t => { if (!t.emoji) t.emoji = '⭐'; });
+        state.setupComplete = true;
+        saveState();
+        render();
+      });
+    } else if (action === 'open-day') {
+      el.addEventListener('click', () => {
+        state.currentDay = parseInt(el.dataset.day);
+        state.view = 'detail';
+        render();
+      });
+    } else if (action === 'reset') {
+      el.addEventListener('click', () => showResetConfirm());
+    } else if (action === 'back') {
+      el.addEventListener('click', goHome);
+    } else if (action === 'toggle-task') {
+      el.addEventListener('click', () => toggleTask(el.dataset.id));
+    }
+  });
+}
+
+function canStart() {
+  return state.goal.trim().length > 0
+    && state.days !== null
+    && state.tasks.filter(t => t.name.trim()).length >= 3;
+}
+
+function goHome() {
+  if (physicsCleanup) physicsCleanup();
+  state.view = 'home';
+  render();
+}
+
+function toggleTask(taskId) {
+  const dayIdx = state.currentDay;
+  if (!state.progress[dayIdx]) state.progress[dayIdx] = { completedTaskIds: [] };
+  const p = state.progress[dayIdx];
+  const already = p.completedTaskIds.includes(taskId);
+
+  const task = state.tasks.find(t => t.id === taskId);
+  if (!task) return;
+
+  if (already) {
+    p.completedTaskIds = p.completedTaskIds.filter(id => id !== taskId);
+    removeBallsForTask(task.emoji);
+    if (p.completedTaskIds.length < state.tasks.length) {
+      delete p.stampDate;
+    }
+  } else {
+    p.completedTaskIds.push(taskId);
+    addBallsForTask(task.emoji, true);
+  }
+
+  saveState();
+
+  // UI 업데이트 (검사 항목과 진행 표시만)
+  updateDetailUi();
+
+  // 전부 완료 시 축하
+  if (p.completedTaskIds.length === state.tasks.length && !p.stampDate) {
+    p.stampDate = new Date().toISOString();
+    saveState();
+    setTimeout(() => showDayCelebration(), 600);
+  }
+}
+
+function updateDetailUi() {
+  const dayIdx = state.currentDay;
+  const progress = state.progress[dayIdx] || { completedTaskIds: [] };
+  app.querySelectorAll('.task-check-item').forEach(el => {
+    const id = el.dataset.id;
+    const isChecked = progress.completedTaskIds.includes(id);
+    el.classList.toggle('checked', isChecked);
+    const cb = el.querySelector('.checkbox');
+    if (cb) cb.textContent = isChecked ? '✓' : '';
+  });
+  const progressEl = document.querySelector('#boxProgressLabel');
+  if (progressEl) {
+    progressEl.textContent = `${progress.completedTaskIds.length}/${state.tasks.length} 미션 완료`;
+  }
+}
+
+// ============================
+//  이모지 피커
+// ============================
+function openEmojiPicker(taskId) {
+  let html = `
+    <div class="modal-overlay" data-emoji-overlay>
+      <div class="emoji-picker">
+        <div class="emoji-picker-title">이모지 선택 ✨</div>
+  `;
+  for (const [cat, list] of Object.entries(EMOJI_CATEGORIES)) {
+    html += `<div class="emoji-cat">${cat}</div><div class="emoji-grid">`;
+    list.forEach(e => {
+      html += `<button class="emoji-option" data-emoji="${e}">${e}</button>`;
+    });
+    html += `</div>`;
+  }
+  html += `
+        <button class="emoji-close" data-close-emoji>닫기</button>
+      </div>
+    </div>
+  `;
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  const node = wrap.firstElementChild;
+  document.body.appendChild(node);
+
+  node.addEventListener('click', e => {
+    if (e.target.matches('[data-close-emoji]') || e.target === node) {
+      node.remove();
+      return;
+    }
+    const emoji = e.target.dataset?.emoji;
+    if (emoji) {
+      const t = state.tasks.find(x => x.id === taskId);
+      if (t) {
+        t.emoji = emoji;
+        const btn = document.querySelector(`.emoji-btn[data-id="${taskId}"]`);
+        if (btn) btn.textContent = emoji;
+      }
+      node.remove();
+    }
+  });
+}
+
+// ============================
+//  물리 시뮬레이션 (공 튕기기)
+// ============================
+let balls = [];
+let physicsRunning = false;
+let gravityVec = { x: 0, y: 0.5 };
+let canvas, ctx;
+let canvasWidth, canvasHeight;
+let dpr = 1;
+
+function initPhysics() {
+  canvas = document.getElementById('ballCanvas');
+  if (!canvas) return;
+  ctx = canvas.getContext('2d');
+  resizePhysicsCanvas();
+  balls = [];
+  physicsRunning = true;
+  gravityVec = { x: 0, y: 0.12 };
+
+  // 디바이스 모션
+  setupDeviceMotion();
+
+  // 리사이즈
+  window.addEventListener('resize', resizePhysicsCanvas);
+
+  // 시작
+  requestAnimationFrame(physicsLoop);
+
+  physicsCleanup = () => {
+    physicsRunning = false;
+    balls = [];
+    window.removeEventListener('resize', resizePhysicsCanvas);
+    window.removeEventListener('devicemotion', handleMotion);
+  };
+}
+
+function resizePhysicsCanvas() {
+  if (!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvasWidth = rect.width;
+  canvasHeight = rect.height;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.scale(dpr, dpr);
+}
+
+function addBall(emoji, settled) {
+  if (!canvas) return;
+  const radius = 22;
+  // 던지는 경우: 좌/우 무작위 위치 위쪽에서 가운데로 호를 그리듯 들어옴
+  const throwFromLeft = Math.random() < 0.5;
+  const ball = {
+    emoji,
+    x: settled
+      ? canvasWidth / 2 + (Math.random() - 0.5) * (canvasWidth * 0.6)
+      : (throwFromLeft
+          ? radius + 10 + Math.random() * 20
+          : canvasWidth - radius - 10 - Math.random() * 20),
+    y: settled
+      ? radius + 8 + Math.random() * (canvasHeight - radius * 2 - 16)
+      : -radius - Math.random() * 20,
+    vx: settled
+      ? (Math.random() - 0.5) * 0.4
+      : (throwFromLeft ? 1 : -1) * (1.2 + Math.random() * 0.5),
+    vy: settled
+      ? (Math.random() - 0.5) * 0.3
+      : 0.8 + Math.random() * 0.4,
+    radius,
+    rotation: (Math.random() - 0.5) * 0.3,
+    angularVel: settled
+      ? (Math.random() - 0.5) * 0.015
+      : (Math.random() - 0.5) * 0.05,
+    bornAt: Date.now() + Math.random() * 1000
+  };
+  balls.push(ball);
+}
+
+function removeBallByEmoji(emoji) {
+  const idx = balls.findIndex(b => b.emoji === emoji);
+  if (idx >= 0) balls.splice(idx, 1);
+}
+
+let motionEnabled = false;
+function setupDeviceMotion() {
+  if (motionEnabled) {
+    window.removeEventListener('devicemotion', handleMotion);
+  }
+  if (typeof DeviceMotionEvent !== 'undefined') {
+    if (typeof DeviceMotionEvent.requestPermission === 'function') {
+      // iOS 13+
+      document.body.addEventListener('click', () => {
+        DeviceMotionEvent.requestPermission().then(p => {
+          if (p === 'granted') {
+            window.addEventListener('devicemotion', handleMotion);
+            motionEnabled = true;
+          }
+        }).catch(() => {});
+      }, { once: true });
+    } else {
+      window.addEventListener('devicemotion', handleMotion);
+      motionEnabled = true;
+    }
+  }
+}
+
+function handleMotion(e) {
+  const a = e.accelerationIncludingGravity;
+  if (!a) return;
+  // 부드러운 흐름 - 기울임을 약하게 반영
+  const gx = -(a.x || 0) * 0.04;
+  const gy = (a.y || 0) * 0.04 + 0.08;
+  // 더 느린 보간으로 부드럽게
+  gravityVec.x = gravityVec.x * 0.92 + gx * 0.08;
+  gravityVec.y = gravityVec.y * 0.92 + gy * 0.08;
+}
+
+function physicsLoop() {
+  if (!physicsRunning) return;
+
+  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+  // 박스 윤곽선 (살짝)
+  ctx.strokeStyle = 'rgba(176, 124, 232, 0.12)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(2, 2, canvasWidth - 4, canvasHeight - 4);
+
+  // 젤리/물처럼 부드러운 흐름
+  const damping = 0.45;       // 벽 충돌 시 흡수율 높임 (덜 튕김)
+  const friction = 0.96;      // 점성 - 점진 감속
+  const maxSpeed = 1.6;       // 최대 속도 제한
+  const t = Date.now() / 1000;
+
+  for (let i = 0; i < balls.length; i++) {
+    const b = balls[i];
+    // 약한 중력 (둥둥 떠 있는 느낌)
+    b.vx += gravityVec.x;
+    b.vy += gravityVec.y;
+    // 부드러운 흐름 (각 공마다 다른 위상의 사인파)
+    const phase = (b.bornAt || 0) / 137;
+    b.vx += Math.sin(t * 0.7 + phase) * 0.045;
+    b.vy += Math.cos(t * 0.55 + phase * 1.3) * 0.04;
+    // 점성 마찰
+    b.vx *= friction;
+    b.vy *= friction;
+    // 최대 속도 제한 (부드럽게 흐르도록)
+    const sp = Math.sqrt(b.vx * b.vx + b.vy * b.vy);
+    if (sp > maxSpeed) {
+      b.vx = (b.vx / sp) * maxSpeed;
+      b.vy = (b.vy / sp) * maxSpeed;
+    }
+    // 위치
+    b.x += b.vx;
+    b.y += b.vy;
+    b.rotation += b.angularVel;
+    b.angularVel *= 0.985;
+
+    // 벽 충돌 (젤리처럼 부드럽게 멈춤)
+    if (b.x - b.radius < 4) {
+      b.x = b.radius + 4;
+      b.vx = -b.vx * damping;
+      b.angularVel += b.vy * 0.002;
+    }
+    if (b.x + b.radius > canvasWidth - 4) {
+      b.x = canvasWidth - b.radius - 4;
+      b.vx = -b.vx * damping;
+      b.angularVel -= b.vy * 0.002;
+    }
+    if (b.y - b.radius < 4) {
+      b.y = b.radius + 4;
+      b.vy = -b.vy * damping;
+    }
+    if (b.y + b.radius > canvasHeight - 4) {
+      b.y = canvasHeight - b.radius - 4;
+      b.vy = -b.vy * damping;
+      b.vx *= 0.9;
+      b.angularVel += b.vx * 0.002;
+    }
+
+    // 공 사이 충돌 (간단)
+    for (let j = i + 1; j < balls.length; j++) {
+      const c = balls[j];
+      const dx = c.x - b.x;
+      const dy = c.y - b.y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      const min = b.radius + c.radius - 4;
+      if (dist < min && dist > 0) {
+        const overlap = (min - dist) / 2;
+        const nx = dx / dist;
+        const ny = dy / dist;
+        b.x -= nx * overlap;
+        b.y -= ny * overlap;
+        c.x += nx * overlap;
+        c.y += ny * overlap;
+        // 속도 교환
+        const dvx = c.vx - b.vx;
+        const dvy = c.vy - b.vy;
+        const dot = dvx * nx + dvy * ny;
+        if (dot < 0) {
+          const impulse = dot * 0.45; // 부드럽게 미끄러지듯
+          b.vx += nx * impulse;
+          b.vy += ny * impulse;
+          c.vx -= nx * impulse;
+          c.vy -= ny * impulse;
+        }
+      }
+    }
+
+    // 그리기
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(b.rotation);
+    // 그림자
+    ctx.shadowColor = 'rgba(176, 124, 232, 0.35)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 3;
+    ctx.font = `${b.radius * 2}px serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(b.emoji, 0, 0);
+    ctx.restore();
+  }
+
+  requestAnimationFrame(physicsLoop);
+}
+
+// ============================
+//  축하 모션
+// ============================
+function showDayCelebration() {
+  startConfetti(2500);
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="celebrate-emoji">🎉</div>
+      <div class="celebrate-title">오늘의 미션 완료!</div>
+      <div class="celebrate-desc">
+        대단해요! 오늘도 모든 할일을<br>완료했어요 💖
+      </div>
+      <div class="celebrate-goal">🎯 ${escapeHtml(state.goal)}</div>
+      <button class="primary-btn" data-celebrate-ok>확인</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('[data-celebrate-ok]').addEventListener('click', () => {
+    overlay.remove();
+    stopConfetti();
+    goHome();
+  });
+}
+
+function showFinalCelebration() {
+  startConfetti(6000);
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal">
+      <div class="celebrate-emoji" style="font-size:70px;">🏆</div>
+      <div class="celebrate-title">목표 달성!</div>
+      <div class="celebrate-desc">
+        ${state.days}일 챌린지를 끝까지<br>
+        완주했어요! 정말 자랑스러워요 🌈✨
+      </div>
+      <div class="celebrate-goal">🎯 ${escapeHtml(state.goal)}</div>
+      <button class="primary-btn" data-celebrate-ok>확인 🎊</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('[data-celebrate-ok]').addEventListener('click', () => {
+    overlay.remove();
+    stopConfetti();
+  });
+}
+
+// ============================
+//  컨피티
+// ============================
+let confettiParticles = [];
+let confettiRunning = false;
+let confettiCanvas, confettiCtx;
+let confettiStopAt = 0;
+
+function startConfetti(durationMs) {
+  confettiCanvas = document.getElementById('confettiCanvas');
+  if (!confettiCanvas) return;
+  confettiCtx = confettiCanvas.getContext('2d');
+  resizeConfettiCanvas();
+  window.addEventListener('resize', resizeConfettiCanvas);
+
+  confettiParticles = [];
+  const colors = ['#ff6ec7', '#b07ce8', '#6e9bff', '#6ec7ff', '#ffc1e0', '#ffd56e', '#7fffd4'];
+  for (let i = 0; i < 120; i++) {
+    confettiParticles.push({
+      x: Math.random() * confettiCanvas.width / (window.devicePixelRatio || 1),
+      y: -20 - Math.random() * 200,
+      vx: (Math.random() - 0.5) * 6,
+      vy: 2 + Math.random() * 4,
+      size: 6 + Math.random() * 8,
+      rotation: Math.random() * Math.PI * 2,
+      angularVel: (Math.random() - 0.5) * 0.2,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      shape: Math.random() > 0.6 ? 'circle' : 'rect'
+    });
+  }
+
+  confettiRunning = true;
+  confettiStopAt = Date.now() + durationMs;
+  requestAnimationFrame(confettiLoop);
+}
+
+function stopConfetti() {
+  confettiRunning = false;
+  if (confettiCanvas) {
+    const ctx2 = confettiCanvas.getContext('2d');
+    ctx2.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+  }
+}
+
+function resizeConfettiCanvas() {
+  if (!confettiCanvas) return;
+  const d = window.devicePixelRatio || 1;
+  confettiCanvas.width = window.innerWidth * d;
+  confettiCanvas.height = window.innerHeight * d;
+  confettiCanvas.style.width = window.innerWidth + 'px';
+  confettiCanvas.style.height = window.innerHeight + 'px';
+  confettiCtx.setTransform(1, 0, 0, 1, 0, 0);
+  confettiCtx.scale(d, d);
+}
+
+function confettiLoop() {
+  if (!confettiRunning) return;
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  confettiCtx.clearRect(0, 0, w, h);
+
+  // 새 입자 추가 (시간 안에)
+  if (Date.now() < confettiStopAt && confettiParticles.length < 200) {
+    if (Math.random() < 0.3) {
+      const colors = ['#ff6ec7', '#b07ce8', '#6e9bff', '#6ec7ff', '#ffc1e0', '#ffd56e'];
+      confettiParticles.push({
+        x: Math.random() * w,
+        y: -20,
+        vx: (Math.random() - 0.5) * 5,
+        vy: 2 + Math.random() * 4,
+        size: 6 + Math.random() * 8,
+        rotation: Math.random() * Math.PI * 2,
+        angularVel: (Math.random() - 0.5) * 0.2,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        shape: Math.random() > 0.6 ? 'circle' : 'rect'
+      });
+    }
+  }
+
+  confettiParticles = confettiParticles.filter(p => {
+    p.vy += 0.12;
+    p.x += p.vx;
+    p.y += p.vy;
+    p.rotation += p.angularVel;
+
+    confettiCtx.save();
+    confettiCtx.translate(p.x, p.y);
+    confettiCtx.rotate(p.rotation);
+    confettiCtx.fillStyle = p.color;
+    if (p.shape === 'circle') {
+      confettiCtx.beginPath();
+      confettiCtx.arc(0, 0, p.size / 2, 0, Math.PI * 2);
+      confettiCtx.fill();
+    } else {
+      confettiCtx.fillRect(-p.size/2, -p.size/3, p.size, p.size/1.5);
+    }
+    confettiCtx.restore();
+
+    return p.y < h + 50;
+  });
+
+  if (confettiParticles.length === 0 && Date.now() > confettiStopAt) {
+    confettiRunning = false;
+    return;
+  }
+  requestAnimationFrame(confettiLoop);
+}
+
+// ============================
+//  헬퍼
+// ============================
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatStampDate(iso) {
+  const d = iso ? new Date(iso) : new Date();
+  return { month: MONTHS_EN[d.getMonth()], day: d.getDate() };
+}
+
+// 7일 기준 그라데이션 띠 (연핑크→핑크→진핑크→보라→청보라→파랑→하늘)
+const STAMP_PALETTE = [
+  ['#ffc1de', '#ff9ec7'], // 1 연핑크
+  ['#ff9ec7', '#ff6ec7'], // 2 핑크
+  ['#ff7ed4', '#d77ce8'], // 3 진핑크
+  ['#c890ec', '#a874e8'], // 4 보라
+  ['#9b8ee8', '#7e9bff'], // 5 청보라
+  ['#7eb4ff', '#6ec7ff'], // 6 파랑
+  ['#7fd4f5', '#a3e0f5']  // 7 하늘
+];
+
+function getStampGradient(idx) {
+  const [c1, c2] = STAMP_PALETTE[idx % 7];
+  return `linear-gradient(135deg, ${c1}, ${c2})`;
+}
+
+// ============================
+//  시작
+// ============================
+loadState();
+render();
+</script>
+</body>
+</html>
