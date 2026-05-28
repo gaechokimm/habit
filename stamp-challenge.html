@@ -1423,7 +1423,7 @@ function handleMotion(e) {
   if (!a) return;
   // 부드러운 흐름 - 기울임을 약하게 반영
   const gx = -(a.x || 0) * 0.04;
-  const gy = (a.y || 0) * 0.04 + 0.08;
+  const gy = -(a.y || 0) * 0.04 + 0.08;
   // 더 느린 보간으로 부드럽게
   gravityVec.x = gravityVec.x * 0.92 + gx * 0.08;
   gravityVec.y = gravityVec.y * 0.92 + gy * 0.08;
