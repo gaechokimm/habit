@@ -1299,7 +1299,10 @@ function initPhysics() {
   window.addEventListener('resize', resizePhysicsCanvas);
 
   // 터치/클릭 시 그 공 튕겨나가기
-  canvas.addEventListener('pointerdown', handleBallPoke);
+  canvas.addEventListener('pointerdown', handleBallPointerDown);
+  canvas.addEventListener('pointermove', handleBallPointerMove);
+  canvas.addEventListener('pointerup', handleBallPointerEnd);
+  canvas.addEventListener('pointercancel', handleBallPointerEnd);
 
   // 시작
   requestAnimationFrame(physicsLoop);
@@ -1309,17 +1312,26 @@ function initPhysics() {
     balls = [];
     window.removeEventListener('resize', resizePhysicsCanvas);
     window.removeEventListener('devicemotion', handleMotion);
-    if (canvas) canvas.removeEventListener('pointerdown', handleBallPoke);
+    if (canvas) {
+    canvas.removeEventListener('pointerdown', handleBallPointerDown);
+    canvas.removeEventListener('pointermove', handleBallPointerMove);
+    canvas.removeEventListener('pointerup', handleBallPointerEnd);
+    canvas.removeEventListener('pointercancel', handleBallPointerEnd);
+    }
   };
 }
 
-function handleBallPoke(e) {
+// 드래그-던지기 상태
+let draggedBall = null;
+let dragSamples = [];
+
+function handleBallPointerDown(e) {
   if (!canvas || !balls.length) return;
   const rect = canvas.getBoundingClientRect();
   const px = e.clientX - rect.left;
   const py = e.clientY - rect.top;
 
-  // 클릭 지점에서 가장 가까운 공 찾기 (히트 영역 약간 여유)
+  // 가장 가까운 공 찾기 (히트 영역 약간 여유)
   let hit = -1;
   let bestDist = Infinity;
   for (let i = balls.length - 1; i >= 0; i--) {
@@ -1327,24 +1339,80 @@ function handleBallPoke(e) {
     const dx = b.x - px;
     const dy = b.y - py;
     const dist = Math.sqrt(dx * dx + dy * dy);
-    if (dist < b.radius * 1.25 && dist < bestDist) {
+    if (dist < b.radius * 1.5 && dist < bestDist) {
       hit = i;
       bestDist = dist;
     }
   }
   if (hit < 0) return;
 
-  const b = balls[hit];
-  const dx = b.x - px;
-  const dy = b.y - py;
-  const dist = Math.sqrt(dx * dx + dy * dy) || 0.001;
-  // 클릭 지점에서 멀어지는 방향으로 임펄스 + 약간 위로
-  const power = 3.6;
-  b.vx += (dx / dist) * power;
-  b.vy += (dy / dist) * power - 0.8;
-  b.angularVel += (Math.random() - 0.5) * 0.35;
-  // 살짝 떠오르도록 보장
-  if (b.vy > -0.3) b.vy = -0.3 + (Math.random() - 0.5) * 0.4;
+  draggedBall = balls[hit];
+  draggedBall.dragging = true;
+  draggedBall.vx = 0;
+  draggedBall.vy = 0;
+  dragSamples = [{ x: px, y: py, t: performance.now() }];
+
+  try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+  e.preventDefault();
+}
+
+function handleBallPointerMove(e) {
+  if (!draggedBall) return;
+  const rect = canvas.getBoundingClientRect();
+  const px = e.clientX - rect.left;
+  const py = e.clientY - rect.top;
+
+  // 공이 손가락을 따라옴
+  draggedBall.x = px;
+  draggedBall.y = py;
+
+  // 최근 움직임 기록 (속도 계산용)
+  const now = performance.now();
+  dragSamples.push({ x: px, y: py, t: now });
+  while (dragSamples.length > 1 && now - dragSamples[0].t > 100) {
+    dragSamples.shift();
+  }
+  e.preventDefault();
+}
+
+function handleBallPointerEnd(e) {
+  if (!draggedBall) return;
+  const b = draggedBall;
+
+  // 최근 100ms 평균 속도로 던지기
+  if (dragSamples.length >= 2) {
+    const first = dragSamples[0];
+    const last = dragSamples[dragSamples.length - 1];
+    const dt = Math.max(last.t - first.t, 16);
+    const scale = (16 / dt) * 0.55;
+    let vx = (last.x - first.x) * scale;
+    let vy = (last.y - first.y) * scale;
+
+    // 너무 빠르면 제한
+    const maxThrow = 14;
+    const sp = Math.sqrt(vx * vx + vy * vy);
+    if (sp > maxThrow) {
+      vx = vx / sp * maxThrow;
+      vy = vy / sp * maxThrow;
+    }
+
+    // 거의 안 움직였으면 가볍게 위로 튕김 (기존 탭 동작)
+    if (sp < 1.0) {
+      vx = (Math.random() - 0.5) * 2.5;
+      vy = -2.5 - Math.random() * 1.0;
+    }
+
+    b.vx = vx;
+    b.vy = vy;
+    b.angularVel += (Math.random() - 0.5) * 0.5;
+  }
+
+  b.dragging = false;
+  draggedBall = null;
+  dragSamples = [];
+
+  try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+}
 }
 
 function resizePhysicsCanvas() {
@@ -1428,7 +1496,7 @@ function handleMotion(e) {
   gravityVec.x = gravityVec.x * 0.92 + gx * 0.08;
   gravityVec.y = gravityVec.y * 0.92 + gy * 0.08;
 }
-
+if (b.dragging) continue;
 function physicsLoop() {
   if (!physicsRunning) return;
 
